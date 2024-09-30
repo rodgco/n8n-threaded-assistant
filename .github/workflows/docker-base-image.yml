@@ -17,7 +17,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.0.0
@@ -35,12 +38,11 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v5.1.0
         with:
-          context: .
-          file: ./docker/images/n8n-base/Dockerfile
+          context: ./docker/images/n8n
           build-args: |
-            NODE_VERSION=${{github.event.inputs.node_version}}
+            N8N_VERSION=${{ needs.publish-to-npm.outputs.release }}
           platforms: linux/amd64,linux/arm64
           provenance: false
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/base:${{ github.event.inputs.node_version }}
+            ghcr.io/${{ github.repository_owner }}/n8n:${{ needs.publish-to-npm.outputs.release }}
